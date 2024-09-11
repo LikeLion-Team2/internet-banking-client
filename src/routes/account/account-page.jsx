@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
 import TransferHistory from "../../components/transfer-history";
 import * as S from "./styles/account-page.style";
 import { IoArrowBackOutline } from "react-icons/io5";
@@ -10,13 +11,34 @@ export default function AccountPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [isOpen, setOpen] = useState(false);
+
   const accountData = location.state || {};
+
+  // 이체하기 버튼 핸들러
+  const handleTransferClick = (e) => {
+    e.stopPropagation();
+    navigate(`/transfer/${accountId}`);
+  };
+
+  // 뒤로 가기 버튼 핸들러
+  const handleBackClick = () => {
+    navigate('/home');
+  };
+
+  // //임시  데이터
+  // const accountData = {
+  //   account_name: "NH1934",
+  //   account_balance: "4,661원",
+  //   account_type: "normal",
+  //   account_number: "3333-09-5576906",
+  // };
 
   return (
     <S.Wrapper>
       {/* 상단부: 계좌 정보 */}
       <S.Header>
-        <S.HeaderButton onClick={() => navigate(-1)}>
+        <S.HeaderButton onClick={handleBackClick}>
           <IoArrowBackOutline />
         </S.HeaderButton>
         {/* 계좌명 */}

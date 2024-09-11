@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import DetailModal from "./transfer-detail-modal";
+import { formatDateShort } from "../utils/dateFormat"; // 날짜 포맷 함수 import
 import { IoSearchCircleOutline } from "react-icons/io5";
 
 const Container = styled.div`
@@ -113,7 +114,7 @@ export default function TransferHistory() {
     setSelectedTransaction(null);
   };
 
-  //계좌 정보 받아오기
+  // 계좌 정보 받아오기
   // GET: 사용자 입출금 내역 확인
   const readMyTx = async () => {
     const myTxListURL = `/api/transaction/${accountId}`;
@@ -123,31 +124,14 @@ export default function TransferHistory() {
 
       if (res.status === 200) {
         if (res.data && res.data) {
-          // 날짜 포맷 변경
-          const formattedTx = res.data.map((transaction) => {
-            const date = new Date(transaction.transaction_date);
-            const formattedDate = `${String(date.getMonth() + 1).padStart(
-              2,
-              "0"
-            )}.${String(date.getDate()).padStart(2, "0")}`;
-            return {
-              ...transaction,
-              transaction_date: formattedDate,
-            };
-          });
-
-          setTransactions(formattedTx);
+          setTransactions(res.data);
         } else {
           console.error("Invalid API response format:", res.data);
-          alert(
-            "계좌 내역을 불러오는데 실패했습니다. API 응답 형식이 잘못되었습니다."
-          );
+          alert("계좌 내역을 불러오는데 실패했습니다. API 응답 형식이 잘못되었습니다.");
         }
       } else {
         console.error("Unexpected HTTP status code:", res.status);
-        alert(
-          "계좌 내역을 불러오는데 실패했습니다. 서버에서 오류가 발생했습니다."
-        );
+        alert("계좌 내역을 불러오는데 실패했습니다. 서버에서 오류가 발생했습니다.");
       }
     } catch (error) {
       console.error("API request failed:", error);
@@ -161,6 +145,26 @@ export default function TransferHistory() {
   useEffect(() => {
     readMyTx();
   }, [accountId]);
+
+  // 특정 거래 내역 다시 조회
+  const fetchTransaction = async (transactionId) => {
+    const transactionURL = `/api/transaction/${accountId}/${transactionId}`;
+    try {
+      const res = await axios.get(transactionURL);
+      if (res.status === 200) {
+        const updatedTransaction = res.data;
+        setTransactions((prevTransactions) =>
+          prevTransactions.map((transaction) =>
+            transaction.transaction_pk === updatedTransaction.transaction_pk
+              ? updatedTransaction
+              : transaction
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Failed to fetch updated transaction:", error);
+    }
+  };
 
   return (
     <Container>
@@ -183,12 +187,12 @@ export default function TransferHistory() {
             key={transaction.transaction_pk}
             onClick={() => openModal(transaction)}
           >
-            <TransactionDate>{transaction.transaction_date}</TransactionDate>
+            <TransactionDate>
+              {formatDateShort(transaction.transaction_date)}
+            </TransactionDate>
             <TransactionDetails>
               <TransactionName>{transaction.transaction_name}</TransactionName>
-              <TransactionMemo>
-                {transaction.transaction_description}
-              </TransactionMemo>
+              <TransactionMemo>{transaction.transaction_memo}</TransactionMemo>
             </TransactionDetails>
             <TransactionDetails>
               <TransactionAmount type={transaction.transaction_type}>
@@ -206,7 +210,8 @@ export default function TransferHistory() {
         <DetailModal
           isOpen={!!selectedTransaction}
           onRequestClose={closeModal}
-          transaction={selectedTransaction}
+          transaction={selectedTransaction} // 선택된 transaction
+          onMemoUpdate={fetchTransaction} // 메모 업데이트 후 호출할 함수 전달
         />
       )}
     </Container>

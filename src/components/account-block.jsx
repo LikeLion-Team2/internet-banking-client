@@ -109,7 +109,7 @@ export default function AccountBlock({
   return (
     <ClickableBlock
       onClick={() =>
-        navigate(`/account/${accountId}`, {
+        navigate(`/account/${accountId}`, { // /transactions
           state: { accountId, accountNumber, name, balance },
         })
       }
@@ -123,7 +123,9 @@ export default function AccountBlock({
         <AccountNumber>{accountNumber}</AccountNumber>
       </NameContainer>
       <ButtonContainer>
-        <Button onClick={handleTransferClick}>이체</Button>
+        <Button onClick={handleTransferClick}>
+          이체
+        </Button>
       </ButtonContainer>
     </ClickableBlock>
   );
