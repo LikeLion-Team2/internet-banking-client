@@ -123,7 +123,6 @@ export default function Transfer() {
           <S.MemoInput
             maxLength={8}
             {...register("transaction_destination_memo", {
-              required: true,
               maxLength: 8,
             })}
           />
@@ -133,7 +132,6 @@ export default function Transfer() {
           <S.MemoInput
             maxLength={8}
             {...register("transaction_origin_memo", {
-              required: true,
               maxLength: 8,
             })}
           ></S.MemoInput>

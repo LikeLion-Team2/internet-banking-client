@@ -54,7 +54,7 @@ const DetailValue = styled.div`
 `;
 
 const ConfirmButton = styled.button`
-  background-color: #ffd700;
+  background-color: var(--primary-color);
   color: #000;
   font-size: 1rem;
   font-weight: bold;
